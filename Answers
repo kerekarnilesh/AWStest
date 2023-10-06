@@ -1,0 +1,203 @@
+Section 1: GIT
+1.	if you using git stash, where will it save data? What is diff b/w index and staging area?
+1. When you use git stash, it saves your current changes that are not yet committed into a temporary area called the stash. This allows you to switch to a different branch or apply other changes without committing your work-in-progress. The stash data is saved in a stack, and you can have multiple stashes if needed. To understand the difference between the index and the staging area:
+
+The index (also known as the "staging area") is where you prepare changes to be committed. It acts as an intermediate step between your working directory and the committed history. When you use git add to stage changes, they are added to the index.
+
+The staging area refers to the same concept as the index, so there is no difference between the two terms.
+
+2.	when would individuals use git rebase, git fast-forward, or a git fetch then push?  
+2.	Individuals use git rebase, git fast-forward, or a git fetch then push in different scenarios:
+
+Git Rebase: You use git rebase to incorporate changes from one branch into another while maintaining a linear commit history. This is useful when you want to update your feature branch with changes from the main branch or reorganize commits before merging.
+
+Git Fast-Forward: When you perform a merge and Git can do a fast-forward merge, it means there are no divergent changes between the branches, and Git simply moves the branch pointer to the most recent commit of the target branch. This is typically used when you want to integrate changes quickly and have no need for a merge commit.
+
+Git Fetch then Push: You use git fetch to update your local repository with changes from a remote repository without making changes to your local branches. After fetching, you can review the changes and then use git push to update the remote repository with your local changes. This is a safe way to ensure you don't accidentally overwrite changes in the remote repository.
+
+3.	How to revert already pushed changes ?
+3.To revert already pushed changes, you can use one of the following methods:
+
+Git Revert: Use git revert to create a new commit that undoes the changes introduced by a previous commit. This is a safe way to revert changes without rewriting history, but it adds new commits to the branch.
+
+Git Reset (with Caution): You can use git reset to move the branch pointer to a previous commit, effectively removing commits from the branch. However, this should be done with caution, as it rewrites history and can cause issues if others are working with the same branch. After resetting, you may need to force push if you've already pushed the changes.
+
+4.	What is the difference between cherry picking commits vs trying a hard reset. What is the final outcome of the head reference? 
+4.The difference between cherry-picking commits and trying a hard reset is as follows:
+
+Cherry-Picking: Cherry-picking involves selecting specific commits from one branch and applying them to another branch. It allows you to choose individual commits to include in a branch's history. The HEAD reference remains unchanged after cherry-picking.
+
+Hard Reset: A hard reset involves moving the branch pointer to a specific commit, effectively discarding all commits made after that point. This can be used to completely reset a branch to a previous state. The HEAD reference also moves to the specified commit, effectively detaching it from the branch.
+
+The final outcome of the HEAD reference depends on the method used. In cherry-picking, the HEAD reference stays on the current branch. In a hard reset, the HEAD reference moves to the specified commit, effectively detaching it from the branch.
+
+5.	Explain the difference between git remote and git clone?
+5.The difference between git remote and git clone is as follows:
+
+git remote: This command is used to view or manage remote repositories that your local repository is connected to. You can use it to list remote repositories (git remote -v), add new remotes (git remote add), rename remotes, remove remotes, and more. It doesn't download the remote repository; it just manages the configuration for connecting to it.
+
+git clone: This command is used to create a copy of a remote repository on your local machine. When you run git clone, Git fetches all the data from the remote repository and sets up a new local repository that is a clone of the remote. This allows you to work on the project locally and interact with the remote repository by pushing and pulling changes.
+
+
+
+Section 2: TERRAFORM
+1.	what is the difference between terraform count and for_each meta data function? and give a scenario-based example to use them?
+1.Difference between Terraform count and for_each meta data function:
+
+count: The count argument is used to create multiple instances of a resource based on a numeric value. You specify a fixed number, and Terraform will create that many instances of the resource. It's useful when you have a known, static number of instances to create.
+
+for_each: The for_each meta-argument allows you to create multiple instances of a resource based on a map or set of strings. Each unique key in the map or set corresponds to an instance of the resource. This is useful when you want dynamic, resource creation based on variable data.
+
+Scenario-based example:
+
+Let's say you are managing AWS S3 buckets. You have a list of departments in your organization, and you want to create S3 buckets for each department. You could use for_each in this case because the number of departments can vary, and you want to create a bucket for each department.
+
+variable "departments" {
+  type    = set(string)
+  default = ["hr", "finance", "marketing"]
+}
+
+resource "aws_s3_bucket" "department_buckets" {
+  for_each = toset(var.departments)
+  bucket   = each.key
+  acl      = "private"
+}
+
+2.	What is Terraform taint ? When to use it? When would you use terraform state rm vs terraform taint?
+2.Terraform taint, state rm, and when to use them:
+
+terraform taint: This command manually marks a resource as tainted. Tainting a resource means that Terraform will consider it as needing replacement during the next terraform apply. You would use this when you want to force the recreation of a specific resource due to some external factors, such as an unexpected configuration change.
+
+terraform state rm: This command removes a resource from the Terraform state without actually destroying the real-world resource. You would use this when you want to remove a resource from your Terraform configuration and state but do not want to destroy the corresponding resource in your infrastructure.
+
+You would use terraform taint when you want to force a resource to be recreated due to some issue or change, whereas you would use terraform state rm when you want to remove a resource from Terraform's management without destroying the real resource.
+
+
+3.	How would you show a diagram of all terraform resources in the state file? When is this useful? 
+3. Showing a diagram of all Terraform resources in the state file:
+
+To generate a diagram of all Terraform resources in the state file, you can use external tools like "Terraformer" or "Terraform Graph." You would typically execute a command to generate a visual representation of your infrastructure. This can be useful for documentation, understanding dependencies, and visualizing your infrastructure as code.
+
+For example, using Terraform's built-in graph functionality:
+
+terraform graph | dot -Tpng > infrastructure.png
+This can be useful when you want to get a visual overview of your infrastructure to identify dependencies, circular references, or simply for documentation purposes.
+
+
+4.	Solve this expression: 
+count = var.run_remote_environment ? var.TFC_RUN_ID !=["Yes"]) : null
+
+4.Solving the expression:
+
+The expression provided seems to have a syntax error. Assuming you want to conditionally set the count based on the value of var.run_remote_environment and var.TFC_RUN_ID, you can correct it as follows:
+
+count = var.run_remote_environment && var.TFC_RUN_ID == "Yes" ? 1 : 0
+This will set count to 1 if var.run_remote_environment is true and var.TFC_RUN_ID is equal to "Yes," otherwise it will set count to 0.
+
+
+5.	How would you apply terraform to multiple accounts simultaneously? We want to ensure this follows security best practices. 
+5.Applying Terraform to multiple accounts simultaneously following security best practices:
+
+To apply Terraform to multiple AWS accounts simultaneously while following security best practices, you can use the following approach:
+
+AWS AssumeRole: Create IAM roles in each AWS account that Terraform needs to interact with. In your Terraform configuration, use the assume_role provider configuration to assume these roles in each account. This allows you to use cross-account access.
+
+Separate State Files: Maintain separate Terraform state files for each AWS account to isolate the state. This ensures that changes in one account do not impact others.
+
+Use Terragrunt: Terragrunt is a wrapper around Terraform that provides additional features for managing multiple Terraform configurations. It can help you automate the process of applying configurations to multiple accounts.
+
+Implement RBAC: Implement Role-Based Access Control (RBAC) to restrict who can make changes in each AWS account and enforce the principle of least privilege.
+
+Secure Sensitive Data: Ensure sensitive data like credentials and secrets are stored securely using tools like AWS Secrets Manager or Parameter Store.
+
+Audit and Monitoring: Implement auditing and monitoring to track changes made by Terraform and detect any unauthorized activities.
+
+SECTION 3: AWS
+1.	You have an EC2 instance that has an unencrypted volume. You want to create another Encrypted volume from this unencrypted volume. Which of the following steps can achieve this? How would you share this encrypted volume to another account? What must you ensure to make sure this cross-account encryption is shared? 
+1.To create an encrypted volume from an unencrypted EC2 instance volume and share it with another account, you can follow these steps:
+
+a. Create a snapshot of the unencrypted volume:
+
+Go to the AWS Management Console.
+Navigate to the EC2 Dashboard.
+Select the unencrypted volume associated with your EC2 instance.
+Create a snapshot of the volume.
+b. Copy the snapshot and encrypt it:
+
+After creating the snapshot, select it.
+Choose "Actions" and then "Copy snapshot."
+During the copy process, enable encryption and select a KMS (Key Management Service) key for encryption.
+c. Create a new encrypted volume from the copied snapshot:
+
+Once the encrypted snapshot is available, create a new volume from it.
+Attach this new encrypted volume to your EC2 instance.
+d. Share the encrypted volume with another AWS account:
+
+Go to the EC2 Dashboard.
+Select the newly created encrypted volume.
+Choose "Actions" and then "Modify Volume Attribute."
+Under "Modify volume attribute," you can specify the AWS account ID of the account you want to share the volume with.
+e. Ensure cross-account encryption is shared:
+
+Make sure that the AWS Key Management Service (KMS) key used for encryption of the snapshot and volume is accessible by the AWS account that you are sharing the volume with.
+The account receiving the volume must have permissions to use the KMS key for decryption.
+
+
+2.	How will you implement service control policy and in which area are you using it? 
+2.Service Control Policies (SCPs) are used in AWS Organizations, which allows you to centrally manage policies across multiple AWS accounts. SCPs are applied to Organizational Units (OUs) and control what actions AWS accounts within those OUs are allowed or denied. To implement an SCP:
+
+a. Sign in to the AWS Organizations management account.
+
+b. Create an SCP:
+
+In the AWS Organizations console, go to "Policies."
+Choose "Create policy."
+Define the policy with the desired permissions or restrictions.
+c. Attach the SCP to an OU:
+
+After creating the policy, you can attach it to one or more OUs or accounts within your organization.
+d. Verify the effects:
+
+The SCP will restrict or allow actions based on the policy's permissions, affecting all AWS accounts within the targeted OUs or accounts.
+
+
+3.	How can you convert a public subnet to private subnet? 
+3.To convert a public subnet to a private subnet in Amazon VPC, you can do the following:
+
+a. Identify the public subnet:
+
+Determine which subnet you want to convert from public to private.
+b. Disassociate the public IP addresses:
+
+For any EC2 instances in the subnet, disassociate their Elastic IP addresses or release any public IP addresses they are using.
+c. Modify the route table:
+
+Change the route in the subnet's associated route table. Replace the default route (0.0.0.0/0) pointing to an Internet Gateway with a custom route that directs traffic to a Network Address Translation (NAT) Gateway or NAT instance located in a private subnet.
+d. Update security groups and NACLs:
+
+Ensure that the security groups and Network ACLs allow the necessary traffic for your private instances.
+e. Test connectivity:
+
+Verify that instances in the subnet can still reach the internet via the NAT gateway/instance for necessary updates and patches.
+
+
+4.	What is the default route for any newly created route table? 
+4.The default route for any newly created route table in an Amazon VPC is typically a local route. This means that the route table automatically includes a local route for each VPC's CIDR block. The local route allows instances within the VPC to communicate with each other using their private IP addresses.
+
+
+5.	How would you ensure routes in the route table DO NOT use the local routes?
+5.To ensure routes in a route table do not use the local routes, you can do the following:
+
+a. Go to the VPC Dashboard in the AWS Management Console.
+
+b. Navigate to "Route Tables."
+
+c. Select the route table that you want to modify.
+
+d. Edit the routes:
+
+Remove the local route (typically 0.0.0.0/0 pointing to the VPC's local gateway or interface).
+e. Add custom routes as needed:
+
+Add specific routes to define the desired network traffic paths, such as routes to NAT gateways, Virtual Private Gateways (for VPN connections), or Direct Connect gateways for specific destinations.
+f. Save your changes.
